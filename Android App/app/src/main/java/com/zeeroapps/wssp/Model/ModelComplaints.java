@@ -2,10 +2,6 @@ package com.zeeroapps.wssp.Model;
 
 import com.zeeroapps.wssp.utils.Constants;
 
-/**
- * Created by fazalullah on 4/17/17.
- */
-
 public class ModelComplaints {
     private String cNumber;
     private String cType;

@@ -1,10 +1,12 @@
 package com.zeeroapps.wssp.services;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -13,6 +15,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,7 +55,7 @@ public class GPSService extends Service implements LocationListener {
 
 	/**
 	 * Returs the Location
-	 * 
+	 *
 	 * @return Location or null if no location is found
 	 */
 	public Location getLocation() {
@@ -59,7 +64,16 @@ public class GPSService extends Service implements LocationListener {
 			// Getting GPS status
 			isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-			// If GPS enabled, get latitude/longitude using GPS Services
+
+			if (ContextCompat.checkSelfPermission(this,
+					android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+					|| ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+					== PackageManager.PERMISSION_GRANTED) {
+				Toast.makeText(mContext, "Granted", Toast.LENGTH_SHORT).show();
+			}//end of if
+
+
+				// If GPS enabled, get latitude/longitude using GPS Services
 			if (isGPSEnabled) {
 				mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TIME, DISTANCE, this);
 				if (mLocationManager != null) {

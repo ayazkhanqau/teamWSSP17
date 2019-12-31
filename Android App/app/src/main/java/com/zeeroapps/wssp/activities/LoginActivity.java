@@ -1,20 +1,13 @@
 package com.zeeroapps.wssp.activities;
 
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -30,9 +22,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.wang.avi.AVLoadingIndicatorView;
+import com.zeeroapps.wssp.ForgotPassword;
 import com.zeeroapps.wssp.R;
-import com.zeeroapps.wssp.receivers.ConnectivityStateReceiver;
 import com.zeeroapps.wssp.utils.AppController;
 import com.zeeroapps.wssp.utils.Constants;
 import com.zeeroapps.wssp.utils.SHA1;
@@ -133,6 +126,9 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     }
 
     public void forgotPassword(View v){
+
+
+
        /* Intent i = new Intent(Intent.ACTION_SENDTO);
         i.setType("message/rfc822");
         i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"admin@wssp.com"});
@@ -144,9 +140,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             Toast.makeText(LoginActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
         }
 */
-
-
-        String mailto = "mailto:ebtihaj@codeforpakistan.org" +
+       /* String mailto = "mailto:ebtihaj@codeforpakistan.org" +
    "?cc=" + "nazimdin@codeforpakistan.org" +
    "&subject=" + Uri.encode("Forgot my WSSP account password!") +
    "&body=" + Uri.encode("Kindly create a new password for me.");
@@ -158,7 +152,10 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             startActivity(emailIntent);
         } catch (ActivityNotFoundException e) {
             //TODO: Handle case where no email app is available
-        }
+        }*/
+
+       Intent intent = new Intent(LoginActivity.this, ForgotPassword.class);
+       startActivity(intent);
 
     }
 
@@ -169,7 +166,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     public void loginWS() {
         try {
             passwordSHA1 = SHA1.encrypt(etPass.getText().toString());
-            Log.e(TAG, "loginWS: " + passwordSHA1);
+            //Log.e(TAG, "loginWS: " + passwordSHA1);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -179,24 +176,29 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         StringRequest jsonReq = new StringRequest(Request.Method.POST, Constants.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.e(TAG, response.toString());
+                //Log.e(TAG, response.toString());
 
                 try {
                     JSONObject jObj = new JSONObject(response.toString());
                     String status = jObj.getString("status");
 
                     Snackbar.make(mainLayout, status, Snackbar.LENGTH_LONG).show();
-                    if (status.toLowerCase().contains("success")) {
+                    if (status.equals("Success")) {
 
                         int roll = Integer.parseInt(jObj.getString("roll"));
-                        if (roll != 0) {
-                            Snackbar.make(mainLayout, "Incorrect username or password!", Snackbar.LENGTH_LONG).show();
-                            avi.hide();
-                            return;
-                        }
+//                        //Log.d("ayaz",roll+"");
+//                        if (roll != 0) {
+//                            Snackbar.make(mainLayout, "Incorrect username or password!", Snackbar.LENGTH_LONG).show();
+//                            avi.hide();
+//                            return;
+//                        }
                         getMemberDetailsWS();
 
 
+                    }else{
+                        Snackbar.make(mainLayout, "Incorrect username or password!", Snackbar.LENGTH_LONG).show();
+                        avi.hide();
+                        return;
                     }
 
                 } catch (JSONException e) {
@@ -207,7 +209,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, error.toString());
+                //Log.e(TAG, error.toString());
                 if (error.toString().contains("NoConnectionError")) {
                     Snackbar.make(mainLayout, "Error in connection!", Snackbar.LENGTH_LONG).show();
                 } else {
@@ -229,33 +231,37 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     }
 
     public void getMemberDetailsWS() {
-        Log.e("member details", "working" );
+        //Log.e("member details", "working" );
         avi.show();
         StringRequest jsonReq = new StringRequest(Request.Method.POST, Constants.URL_MEMBERS, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.e(TAG, response.toString());
+          //Log.e(TAG, response.toString());
 
                 try {
                     JSONArray jArr = new JSONArray(response);
                     JSONObject jObj = jArr.getJSONObject(0);
 
-                    if (jObj.toString().toLowerCase().contains("account_id")) {
-                        Snackbar.make(mainLayout, "Success!", Snackbar.LENGTH_LONG).show();
-                        spEdit.putString(getString(R.string.spUID), jObj.getString("account_id"));
-                        spEdit.putString(getString(R.string.spUMobile), jObj.getString("mobilenumber"));
-                        spEdit.putString(getString(R.string.spUName), jObj.getString("fullname"));
-                        spEdit.putString(getString(R.string.spUEmail), jObj.getString("emailad"));
-                        spEdit.putString(getString(R.string.spUPic), jObj.getString("profile_image"));
-                        spEdit.putString(getString(R.string.spUC), jObj.getString("uc_id"));
-                        spEdit.putString(getString(R.string.spNC), jObj.getString("nc_id"));
-                        spEdit.commit();
+                    String status = jObj.getString("status");
+                    if (status.equals("Success")) {
 
-                        Intent intent = new Intent(LoginActivity.this, DrawerActivity.class);
-                        startActivity(intent);
-                        finish();
+                        if (jObj.toString().toLowerCase().contains("account_id")) {
+                            Snackbar.make(mainLayout, "Success!", Snackbar.LENGTH_LONG).show();
+                            spEdit.putString(getString(R.string.spUID), jObj.getString("account_id"));
+                            spEdit.putString(getString(R.string.spUMobile), jObj.getString("mobilenumber"));
+                            spEdit.putString(getString(R.string.spUName), jObj.getString("fullname"));
+                            spEdit.putString(getString(R.string.spUEmail), jObj.getString("emailad"));
+                            spEdit.putString(getString(R.string.spUPic), jObj.getString("profile_image"));
+                            spEdit.putString(getString(R.string.spUC), jObj.getString("uc_id"));
+                            spEdit.putString(getString(R.string.spNC), jObj.getString("nc_id"));
+                            spEdit.commit();
+
+                            Intent intent = new Intent(LoginActivity.this, DrawerActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
-                } catch (JSONException e) {
+                }catch (JSONException e) {
                     e.printStackTrace();
                 }
                 avi.hide();
@@ -263,7 +269,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, error.toString());
+                //Log.e(TAG, error.toString());
                 if (error.toString().contains("NoConnectionError")) {
                     Snackbar.make(mainLayout, "Error in connection!", Snackbar.LENGTH_LONG).show();
                 } else {
@@ -281,5 +287,11 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         };
 
         AppController.getInstance().addToRequestQueue(jsonReq, tag_json_obj);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.finish();
     }
 }

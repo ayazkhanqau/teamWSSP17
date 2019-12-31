@@ -273,7 +273,7 @@ public class NewComplaintActivity extends Activity {
 
         btnSubmit.setEnabled(false);
         if (CheckNetwork.isOnline(this)){
-            Log.e(TAG, "Interent Available - Data submitted");
+            Log.e(TAG, "Internet Available - Data submitted");
             sendDataToDB();
         }else {
             Log.e(TAG, "No Interent Available - Data saved to SQLite");

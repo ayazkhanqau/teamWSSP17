@@ -25,15 +25,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804447194573-d8h2qmnv7bjuul81oibgu33ptqdn993j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

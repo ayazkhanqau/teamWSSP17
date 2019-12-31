@@ -117,10 +117,10 @@ public class RegisterActivity extends AppCompatActivity {
 
                 try {
                     JSONObject jObj = new JSONObject(response.toString());
-                    String status = jObj.getString("status");
+                    String status = jObj.getString("success");
 
                     Snackbar.make(register_layout, status, Snackbar.LENGTH_LONG).show();
-                    if (status.toLowerCase().contains("success")) {
+                    if (status.toLowerCase().contains("true")) {
                         Toast.makeText(RegisterActivity.this, "Successfully Registered\n Please login now", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                     }else{
@@ -136,7 +136,7 @@ public class RegisterActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, error.toString());
+                Log.d(TAG, error.toString());
                 if (error.toString().contains("NoConnectionError")) {
                     Snackbar.make(register_layout, "Error in connection!", Snackbar.LENGTH_LONG).show();
                 } else {
@@ -148,13 +148,13 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("fullname", name);
-                params.put("mobilenumber", phone);
-                params.put("emailad", email);
+                params.put("name", name);
+                params.put("phone", phone);
+                params.put("email", email);
                 params.put("address", address);
                 params.put("roll", "0");
                 params.put("password", password);
-                params.put("cpassword", confirmPassword);
+                //params.put("cpassword", confirmPassword);
 
                 Log.e(TAG, "Params: "+params.toString() );
                 return params;
